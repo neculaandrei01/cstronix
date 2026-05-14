@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutomateAI — Automatizări Inteligente pentru Business</title>
+<style>
+  /* Fonturi locale — fără request extern, încărcare instant */
+  @font-face {
+    font-family: 'Syne';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: local('Syne'), local('Helvetica Neue'), local('Arial');
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<style>
+  /* ============================
+     OWNER CONFIG — EDITEAZĂ AICI
+     ============================ */
+  :root {
+    /* === CONTACTE TALE — schimbă cu datele reale === */
+    --owner-phone:    "+40712345678";   /* numărul tău de telefon */
+    --owner-whatsapp: "40712345678";    /* numărul fără + pentru WhatsApp link */
+    --owner-email:    "contact@automateai.ro";
+    --owner-facebook: "https://facebook.com/automateai";
+    --owner-instagram:"https://instagram.com/automateai";
+    --owner-linkedin: "https://linkedin.com/company/automateai";
+    --owner-tiktok:   "https://tiktok.com/@automateai";
+    --owner-calendly: "https://calendly.com/automateai"; /* sau alt link programări */
+
+    /* === CULORI === */
+    --bg: #080b12;
+    --bg2: #0d1220;
+    --bg3: #111827;
+    --violet: #7c3aed;
+    --violet-light: #a855f7;
+    --cyan: #06b6d4;
+    --cyan-light: #67e8f9;
+    --green: #10b981;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: rgba(124,58,237,0.2);
+    --card: rgba(13,18,32,0.8);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+  h1, h2, h3, h4, h5 { font-family: 'Syne', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; }
+
+  /* noise overlay removed for perf */
+
+  /* BLOBS */
+  .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.08; pointer-events: none; z-index: 0; }
+  .blob-1 { width: 400px; height: 400px; background: var(--violet); top: -150px; left: -150px; }
+  .blob-2 { width: 350px; height: 350px; background: var(--cyan); bottom: -80px; right: -80px; }
+  .blob-3 { display: none; } /* hidden on all — too heavy */
+
+  /* ============ NAV ============ */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    padding: 1.1rem 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8,11,18,0.97);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--violet-light), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px; cursor: pointer; text-decoration: none;
+  }
+  .logo span { color: white; -webkit-text-fill-color: white; }
+
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; cursor: pointer;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--violet), var(--cyan));
+    color: white !important; padding: 0.55rem 1.3rem; border-radius: 50px;
+    font-weight: 600 !important; transition: opacity 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* HAMBURGER */
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    background: none; border: none; padding: 4px; z-index: 300;
+  }
+  .hamburger span {
+    display: block; width: 24px; height: 2px; background: var(--text);
+    border-radius: 2px; transition: all 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* MOBILE MENU */
+  .mobile-menu {
+    display: none; position: fixed; inset: 0; z-index: 150;
+    background: rgba(8,11,18,0.99);
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 2rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700;
+    color: var(--text); text-decoration: none; transition: color 0.2s;
+    cursor: pointer;
+  }
+  .mobile-menu a:hover { color: var(--violet-light); }
+  .mobile-menu .mob-cta {
+    margin-top: 1rem;
+    background: linear-gradient(135deg, var(--violet), var(--cyan));
+    color: white !important; padding: 0.9rem 2.5rem; border-radius: 50px;
+    font-size: 1.1rem !important;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 8rem 5% 5rem; position: relative; z-index: 1;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.4);
+    padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem;
+    color: var(--violet-light); font-weight: 600; margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease forwards; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .hero-badge::before {
+    content: ''; width: 6px; height: 6px; background: var(--cyan);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+  .hero h1 { font-size: clamp(2.8rem,6vw,5.5rem); font-weight: 800; line-height: 1.05; margin-bottom: 1.5rem; animation: fadeUp 0.7s 0.1s ease both; }
+  .gradient-text { background: linear-gradient(135deg, var(--violet-light) 0%, var(--cyan) 50%, var(--green) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 1.15rem; color: var(--muted); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; animation: fadeUp 0.7s 0.2s ease both; }
+
+  .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.7s 0.3s ease both; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--violet), var(--cyan));
+    color: white; padding: 0.9rem 2rem; border-radius: 50px;
+    font-weight: 700; font-size: 1rem; text-decoration: none; border: none;
+    transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 0 30px rgba(124,58,237,0.3);
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(124,58,237,0.5); }
+
+  .btn-secondary {
+    background: transparent; color: var(--text); padding: 0.9rem 2rem;
+    border-radius: 50px; font-weight: 600; font-size: 1rem; text-decoration: none;
+    border: 1px solid var(--border); transition: border-color 0.2s, background 0.2s;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-secondary:hover { border-color: var(--violet-light); background: rgba(124,58,237,0.08); }
+
+  /* WHATSAPP BTN */
+  .btn-whatsapp {
+    background: #25d366; color: white !important; padding: 0.9rem 2rem; border-radius: 50px;
+    font-weight: 700; font-size: 1rem; text-decoration: none; border: none;
+    transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 0 30px rgba(37,211,102,0.3);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(37,211,102,0.5); }
+
+  .hero-stats {
+    display: flex; gap: 3rem; justify-content: center; margin-top: 4rem; padding-top: 3rem;
+    border-top: 1px solid var(--border); animation: fadeUp 0.7s 0.5s ease both; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--violet-light), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+  /* MARQUEE */
+  .marquee-section {
+    padding: 1.5rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    background: rgba(13,18,32,0.5); overflow: hidden; position: relative; z-index: 1;
+  }
+  .marquee-track { display: flex; gap: 3rem; animation: marquee 25s linear infinite; white-space: nowrap; }
+  .marquee-item { display: flex; align-items: center; gap: 0.6rem; color: var(--muted); font-size: 0.85rem; font-weight: 500; flex-shrink: 0; }
+  .marquee-item span { color: var(--cyan); }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+  .section-header { text-align: center; margin-bottom: 4rem; }
+  .section-tag {
+    display: inline-block; padding: 0.3rem 0.9rem; border-radius: 50px;
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3);
+    font-size: 0.75rem; color: var(--cyan); font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .section-header h2 { font-size: clamp(2rem,4vw,3rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.1; }
+  .section-header p { color: var(--muted); font-size: 1.05rem; max-width: 550px; margin: 0 auto; line-height: 1.7; }
+
+  /* PAIN POINTS */
+  .pain-section { padding: 6rem 5%; background: var(--bg2); }
+  .pain-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .pain-card {
+    background: var(--card); border: 1px solid rgba(239,68,68,0.2); border-radius: 16px; padding: 2rem;
+    position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s; cursor: pointer;
+  }
+  .pain-card:hover { transform: translateY(-4px); border-color: rgba(239,68,68,0.4); }
+  .pain-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#ef4444,#f97316); }
+  .pain-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .pain-card h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .pain-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+  /* SERVICES */
+  .services-section { padding: 6rem 5%; }
+  .services-tabs { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 3rem; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 0.6rem 1.4rem; border-radius: 50px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .tab-btn.active, .tab-btn:hover { background: linear-gradient(135deg,var(--violet),var(--violet-light)); border-color: transparent; color: white; }
+
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto; }
+  .service-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem;
+    transition: all 0.3s; position: relative; overflow: hidden; cursor: pointer;
+  }
+  .service-card:hover { border-color: var(--violet-light); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(124,58,237,0.15); }
+  .service-card::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at top left,rgba(124,58,237,0.05),transparent 60%); pointer-events:none; }
+  .service-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1.2rem; background:rgba(124,58,237,0.15); }
+  .service-card.cyan .service-icon { background: rgba(6,182,212,0.15); }
+  .service-card.green .service-icon { background: rgba(16,185,129,0.15); }
+  .service-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .service-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+  .service-tag { display:inline-block; margin-top:1rem; padding:0.2rem 0.7rem; border-radius:50px; font-size:0.72rem; font-weight:700; background:rgba(124,58,237,0.15); color:var(--violet-light); letter-spacing:0.5px; }
+  .service-card.cyan .service-tag { background:rgba(6,182,212,0.15); color:var(--cyan); }
+  .service-card.green .service-tag { background:rgba(16,185,129,0.15); color:var(--green); }
+  .service-cta { display:inline-flex; align-items:center; gap:0.4rem; margin-top:1rem; font-size:0.8rem; font-weight:600; color:var(--violet-light); opacity:0; transition:opacity 0.2s; }
+  .service-card:hover .service-cta { opacity:1; }
+
+  /* PROCESS */
+  .process-section { padding: 6rem 5%; background: var(--bg2); }
+  .process-steps { display:flex; flex-direction:column; gap:0; max-width:800px; margin:0 auto; position:relative; }
+  .process-steps::before { content:''; position:absolute; left:32px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,var(--violet),var(--cyan)); }
+  .process-step { display:flex; gap:2rem; padding:2rem 2rem 2rem 0; position:relative; }
+  .step-num {
+    width:64px; height:64px; border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem;
+    flex-shrink:0; position:relative; z-index:1; box-shadow:0 0 30px rgba(124,58,237,0.4);
+  }
+  .step-content h4 { font-size:1.2rem; font-weight:700; margin-bottom:0.5rem; margin-top:0.8rem; }
+  .step-content p { color:var(--muted); line-height:1.6; }
+
+  /* TESTIMONIALS */
+  .testimonials-section { padding: 6rem 5%; }
+  .testimonials-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; max-width:1100px; margin:0 auto; }
+  .testimonial-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2rem; transition:all 0.3s; }
+  .testimonial-card:hover { border-color:var(--violet-light); transform:translateY(-4px); }
+  .stars { color:#f59e0b; font-size:1.1rem; margin-bottom:1rem; letter-spacing:2px; }
+  .testimonial-card p { color:var(--muted); font-size:0.95rem; line-height:1.7; margin-bottom:1.5rem; font-style:italic; }
+  .testimonial-author { display:flex; align-items:center; gap:0.8rem; }
+  .author-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--violet),var(--cyan)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; }
+  .author-name { font-weight:700; font-size:0.9rem; }
+  .author-role { color:var(--muted); font-size:0.8rem; }
+
+  /* PRICING */
+  .pricing-section { padding: 6rem 5%; background: var(--bg2); }
+  .pricing-toggle { display:flex; align-items:center; gap:1rem; justify-content:center; margin-bottom:3rem; }
+  .toggle-label { font-size:0.9rem; color:var(--muted); font-weight:500; }
+  .toggle-label.active { color:var(--text); }
+  .toggle-switch { width:52px; height:28px; background:var(--violet); border-radius:14px; position:relative; cursor:pointer; transition:background 0.3s; }
+  .toggle-switch::after { content:''; position:absolute; width:22px; height:22px; background:white; border-radius:50%; top:3px; left:3px; transition:left 0.3s; }
+  .toggle-switch.annual::after { left:27px; }
+  .save-badge { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:var(--green); font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:50px; }
+
+  .pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; max-width:1100px; margin:0 auto; align-items:start; }
+  .pricing-card { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:2.5rem; position:relative; transition:all 0.3s; overflow:hidden; }
+  .pricing-card.featured { border-color:var(--violet); background:linear-gradient(145deg,rgba(124,58,237,0.1),rgba(6,182,212,0.05)); box-shadow:0 0 60px rgba(124,58,237,0.2); transform:scale(1.03); }
+  .pricing-card:hover:not(.featured) { border-color:var(--violet-light); transform:translateY(-4px); }
+  .featured-badge { position:absolute; top:1.5rem; right:1.5rem; background:linear-gradient(135deg,var(--violet),var(--cyan)); color:white; font-size:0.72rem; font-weight:800; padding:0.3rem 0.8rem; border-radius:50px; text-transform:uppercase; letter-spacing:0.5px; }
+  .plan-name { font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--violet-light); margin-bottom:1rem; }
+  .plan-price { display:flex; align-items:baseline; gap:0.3rem; margin-bottom:0.5rem; }
+  .price-currency { font-size:1.2rem; font-weight:700; color:var(--muted); }
+  .price-amount { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; line-height:1; }
+  .price-period { color:var(--muted); font-size:0.9rem; }
+  .plan-desc { color:var(--muted); font-size:0.85rem; line-height:1.6; margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid var(--border); }
+  .plan-features { list-style:none; margin-bottom:2rem; }
+  .plan-features li { display:flex; align-items:flex-start; gap:0.7rem; padding:0.5rem 0; font-size:0.9rem; color:var(--text); line-height:1.4; }
+  .plan-features li::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; margin-top:0.05rem; }
+  .plan-features li.no::before { content:'✕'; color:rgba(148,163,184,0.4); }
+  .plan-features li.no { color:var(--muted); }
+  .plan-btn { display:block; text-align:center; padding:0.9rem; border-radius:50px; font-weight:700; font-size:0.95rem; text-decoration:none; transition:all 0.2s; border:2px solid var(--border); color:var(--text); cursor:pointer; background:transparent; width:100%; font-family:'DM Sans',sans-serif; }
+  .plan-btn:hover { border-color:var(--violet-light); background:rgba(124,58,237,0.1); }
+  .plan-btn.featured-btn { background:linear-gradient(135deg,var(--violet),var(--cyan)); border-color:transparent; color:white; box-shadow:0 0 30px rgba(124,58,237,0.3); }
+  .plan-btn.featured-btn:hover { transform:scale(1.02); box-shadow:0 0 50px rgba(124,58,237,0.5); }
+
+  /* INDIVIDUAL */
+  .individual-section { padding: 6rem 5%; }
+  .individual-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; max-width:1200px; margin:0 auto; }
+  .individual-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; display:flex; align-items:center; justify-content:space-between; transition:all 0.2s; cursor:pointer; }
+  .individual-card:hover { border-color:var(--violet-light); background:rgba(124,58,237,0.08); transform:translateY(-2px); }
+  .individual-left { display:flex; align-items:center; gap:1rem; }
+  .ind-icon { font-size:1.5rem; }
+  .ind-name { font-size:0.9rem; font-weight:600; }
+  .ind-cat { font-size:0.75rem; color:var(--muted); margin-top:0.1rem; }
+  .ind-price { font-family:'Syne',sans-serif; font-weight:700; color:var(--cyan); font-size:1.05rem; white-space:nowrap; }
+
+  /* FAQ */
+  .faq-section { padding: 6rem 5%; background: var(--bg2); }
+  .faq-list { max-width:800px; margin:0 auto; }
+  .faq-item { border:1px solid var(--border); border-radius:16px; margin-bottom:0.8rem; overflow:hidden; transition:border-color 0.2s; }
+  .faq-item:hover { border-color:var(--violet-light); }
+  .faq-question { padding:1.4rem 1.8rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-weight:600; font-size:0.95rem; background:var(--card); transition:background 0.2s; user-select:none; }
+  .faq-question:hover { background:rgba(124,58,237,0.06); }
+  .faq-arrow { color:var(--violet-light); font-size:1.2rem; transition:transform 0.3s; flex-shrink:0; }
+  .faq-answer { max-height:0; overflow:hidden; transition:max-height 0.4s ease, padding 0.3s; padding:0 1.8rem; color:var(--muted); font-size:0.9rem; line-height:1.7; background:var(--card); }
+  .faq-item.open .faq-arrow { transform:rotate(45deg); }
+  .faq-item.open .faq-answer { max-height:300px; padding:0 1.8rem 1.4rem; }
+
+  /* CTA */
+  .cta-section { padding: 6rem 5%; text-align:center; position:relative; overflow:hidden; }
+  .cta-bg { position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(124,58,237,0.15),transparent 70%); }
+  .cta-content { position:relative; z-index:1; max-width:700px; margin:0 auto; }
+  .cta-content h2 { font-size:clamp(2rem,5vw,3.5rem); font-weight:800; margin-bottom:1.5rem; line-height:1.1; }
+  .cta-content > p { color:var(--muted); font-size:1.05rem; line-height:1.7; margin-bottom:2.5rem; }
+  .cta-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  /* CONTACT SECTION */
+  .contact-info-section { padding: 5rem 5%; }
+  .contact-info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.5rem; max-width:900px; margin:0 auto; }
+  .contact-info-card {
+    background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.8rem;
+    text-align:center; transition:all 0.3s; text-decoration:none; color:var(--text);
+  }
+  .contact-info-card:hover { border-color:var(--violet-light); transform:translateY(-4px); }
+  .contact-info-card .ci-icon { font-size:2rem; margin-bottom:0.8rem; }
+  .contact-info-card .ci-label { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:0.4rem; }
+  .contact-info-card .ci-value { font-weight:600; font-size:0.95rem; }
+
+  /* FOOTER */
+  footer { border-top:1px solid var(--border); padding:4rem 5% 2rem; background:var(--bg); position:relative; z-index:1; }
+  .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; margin-bottom:3rem; }
+  .footer-brand p { color:var(--muted); font-size:0.9rem; line-height:1.7; margin-top:1rem; max-width:300px; }
+  .footer-col h5 { font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:1.2rem; }
+  .footer-col a { display:block; color:var(--muted); text-decoration:none; font-size:0.9rem; margin-bottom:0.6rem; transition:color 0.2s; cursor:pointer; }
+  .footer-col a:hover { color:var(--text); }
+  .footer-bottom { display:flex; align-items:center; justify-content:space-between; padding-top:2rem; border-top:1px solid var(--border); font-size:0.85rem; color:var(--muted); flex-wrap:wrap; gap:1rem; }
+  .social-links { display:flex; gap:0.7rem; }
+  .social-links a { color:var(--muted); text-decoration:none; transition:all 0.2s; width:36px; height:36px; border-radius:8px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1rem; }
+  .social-links a:hover { color:var(--violet-light); border-color:var(--violet-light); background:rgba(124,58,237,0.1); }
+
+  /* SCROLL */
+  .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease,transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* FLOATING */
+  .floating-badge { position:absolute; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:0.6rem 1rem; font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; animation:float 4s ease-in-out infinite; }
+  .floating-badge-1 { top:30%;left:5%;animation-delay:0s;border-color:rgba(16,185,129,0.3);color:var(--green); }
+  .floating-badge-2 { top:45%;right:5%;animation-delay:1.5s;border-color:rgba(6,182,212,0.3);color:var(--cyan); }
+  .floating-badge-3 { bottom:20%;left:8%;animation-delay:3s;border-color:rgba(124,58,237,0.3);color:var(--violet-light); }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+  /* MODAL */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,0.85);
+    align-items:center; justify-content:center; padding:1rem; overflow-y:auto;
+  }
+  .modal-overlay.active { display:flex; }
+  .modal-box {
+    background:#0d1220; border:1px solid rgba(124,58,237,0.45); border-radius:24px;
+    padding:2.5rem 2rem 2rem; max-width:480px; width:100%; position:relative;
+    box-shadow:0 0 80px rgba(124,58,237,0.25); margin:auto;
+  }
+  .modal-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .modal-tag { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#06b6d4; }
+  .modal-close-btn { background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; width:40px; height:40px; border-radius:50%; font-size:1.3rem; cursor:pointer; font-weight:700; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .modal-form { display:flex; flex-direction:column; gap:0.9rem; }
+  .modal-input {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(124,58,237,0.3);
+    border-radius:12px; padding:0.85rem 1.1rem; color:#f1f5f9; font-size:0.9rem;
+    outline:none; width:100%; font-family:'DM Sans',sans-serif; transition:border-color 0.2s;
+  }
+  .modal-input:focus { border-color:var(--violet-light); }
+  .modal-select { background:#0d1220; border:1px solid rgba(124,58,237,0.3); border-radius:12px; padding:0.85rem 1.1rem; color:#94a3b8; font-size:0.9rem; outline:none; cursor:pointer; width:100%; font-family:'DM Sans',sans-serif; }
+  .modal-submit { background:linear-gradient(135deg,#7c3aed,#06b6d4); border:none; color:white; padding:1rem; border-radius:50px; font-weight:700; font-size:1rem; cursor:pointer; box-shadow:0 0 30px rgba(124,58,237,0.3); font-family:'DM Sans',sans-serif; transition:opacity 0.2s; }
+  .modal-submit:hover { opacity:0.9; }
+
+  /* SUCCESS */
+  #successModal { display:none; position:fixed; inset:0; z-index:1001; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; padding:1rem; }
+  #successModal.active { display:flex; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .floating-badge { display:none; }
+    .footer-grid { grid-template-columns:1fr 1fr; }
+    /* Reduce animations on mobile for perf */
+    .blob { display: none; }
+    * { animation-duration: 0.3s !important; }
+    .marquee-track { animation-duration: 40s !important; }
+    .hero-badge, .hero h1, .hero p, .hero-btns, .hero-stats { animation: none !important; opacity: 1 !important; transform: none !important; }
+  }
+  @media (max-width: 768px) {
+    .nav-links { display:none; }
+    .hamburger { display:flex; }
+    .hero h1 { font-size:2.5rem; }
+    .pricing-card.featured { transform:none; }
+    .process-steps::before { left:24px; }
+    .step-num { width:48px; height:48px; font-size:1rem; }
+    .footer-grid { grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 500px) {
+    .footer-grid { grid-template-columns:1fr; }
+  }
+
+  /* BACK TO TOP */
+  #backToTop {
+    position:fixed; bottom:2rem; right:1.5rem; z-index:99;
+    width:44px; height:44px; border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    border:none; color:white; font-size:1.2rem; cursor:pointer;
+    box-shadow:0 0 20px rgba(124,58,237,0.4); opacity:0; transition:opacity 0.3s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #backToTop.visible { opacity:1; }
+
+  /* WHATSAPP FLOATING */
+  #whatsappFloat {
+    position:fixed; bottom:2rem; left:1.5rem; z-index:99;
+    width:52px; height:52px; border-radius:50%;
+    background:#25d366; border:none; cursor:pointer;
+    box-shadow:0 4px 20px rgba(37,211,102,0.5);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem; transition:transform 0.2s;
+    text-decoration:none;
+  }
+  #whatsappFloat:hover { transform:scale(1.1); }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- WHATSAPP FLOAT -->
+<a id="whatsappFloat" href="https://wa.me/40712345678?text=Buna%20ziua!%20Vreau%20o%20consultatie%20gratuita%20despre%20automatizari%20AI." target="_blank" title="Contactează-ne pe WhatsApp">💬</a>
+
+<!-- BACK TO TOP -->
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Sus">↑</button>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Automate<span>AI</span></a>
+  <ul class="nav-links">
+    <li><a onclick="goTo('servicii')">Servicii</a></li>
+    <li><a onclick="goTo('proces')">Cum Funcționează</a></li>
+    <li><a onclick="goTo('preturi')">Prețuri</a></li>
+    <li><a onclick="goTo('faq')">FAQ</a></li>
+    <li><a onclick="goTo('contact')" class="nav-cta">Consultație Gratuită →</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Meniu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a onclick="closeMobileMenu();goTo('servicii')">Servicii</a>
+  <a onclick="closeMobileMenu();goTo('proces')">Cum Funcționează</a>
+  <a onclick="closeMobileMenu();goTo('preturi')">Prețuri</a>
+  <a onclick="closeMobileMenu();goTo('faq')">FAQ</a>
+  <a onclick="closeMobileMenu();openModal()" class="mob-cta">Consultație Gratuită →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="floating-badge floating-badge-1">✅ +40 ore salvate/săptămână</div>
+  <div class="floating-badge floating-badge-2">🤖 100% automatizat cu AI</div>
+  <div class="floating-badge floating-badge-3">⚡ Implementare în 48h</div>
+
+  <div>
+    <div class="hero-badge">🚀 Automatizări AI pentru Business</div>
+    <h1>Lasă AI-ul să<br><span class="gradient-text">muncească în locul tău</span></h1>
+    <p>Automatizăm procesele repetitive din businessul tău — vânzări, marketing, recrutare, content — cu soluții AI personalizate, gata de implementat rapid.</p>
+    <div class="hero-btns">
+      <button onclick="goTo('preturi')" class="btn-primary">Vezi Pachete →</button>
+      <button onclick="goTo('servicii')" class="btn-secondary">Explorează Serviciile</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">40+</div><div class="stat-label">Ore salvate / săptămână</div></div>
+      <div class="stat"><div class="stat-num">30+</div><div class="stat-label">Automatizări disponibile</div></div>
+      <div class="stat"><div class="stat-num">48h</div><div class="stat-label">Timp de implementare</div></div>
+      <div class="stat"><div class="stat-num">3×</div><div class="stat-label">Creștere productivitate</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-item"><span>🤖</span> Bot AI Imobiliar</div>
+    <div class="marquee-item"><span>📄</span> Analiză CV-uri Automat</div>
+    <div class="marquee-item"><span>🗺️</span> Scraping Google Maps</div>
+    <div class="marquee-item"><span>🎙️</span> Agent Vocal AI</div>
+    <div class="marquee-item"><span>📅</span> Calendar Reminders</div>
+    <div class="marquee-item"><span>📣</span> Reclame Automatizate</div>
+    <div class="marquee-item"><span>🎬</span> Editare Video AI</div>
+    <div class="marquee-item"><span>📊</span> Funnel de Vânzări</div>
+    <div class="marquee-item"><span>🧲</span> Generare Leaduri</div>
+    <div class="marquee-item"><span>📱</span> Audit Instagram Reels</div>
+    <div class="marquee-item"><span>🤖</span> Bot AI Imobiliar</div>
+    <div class="marquee-item"><span>📄</span> Analiză CV-uri Automat</div>
+    <div class="marquee-item"><span>🗺️</span> Scraping Google Maps</div>
+    <div class="marquee-item"><span>🎙️</span> Agent Vocal AI</div>
+    <div class="marquee-item"><span>📅</span> Calendar Reminders</div>
+    <div class="marquee-item"><span>📣</span> Reclame Automatizate</div>
+    <div class="marquee-item"><span>🎬</span> Editare Video AI</div>
+    <div class="marquee-item"><span>📊</span> Funnel de Vânzări</div>
+    <div class="marquee-item"><span>🧲</span> Generare Leaduri</div>
+    <div class="marquee-item"><span>📱</span> Audit Instagram Reels</div>
+  </div>
+</div>
+
+<!-- PAIN POINTS -->
+<section class="pain-section">
+  <div class="section-header reveal">
+    <div class="section-tag">Probleme reale</div>
+    <h2>Te regăsești<br>în acestea?</h2>
+    <p>Businessurile de azi pierd mii de ore pe an pe procese manuale care pot fi automatizate.</p>
+  </div>
+  <div class="pain-grid">
+    <div class="pain-card reveal" onclick="openModal()">
+      <div class="pain-icon">⏰</div>
+      <h4>Pierzi ore în șir cu taskuri repetitive</h4>
+      <p>Triezi CV-uri manual, cauți clienți pe Google Maps, postezi content unul câte unul... timp pierdut care nu aduce valoare.</p>
+    </div>
+    <div class="pain-card reveal" onclick="openModal()">
+      <div class="pain-icon">💸</div>
+      <h4>Plătești angajați pentru muncă automată</h4>
+      <p>Angajezi oameni pentru sarcini care pot fi 100% automatizate cu AI, risipind bugete importante.</p>
+    </div>
+    <div class="pain-card reveal" onclick="openModal()">
+      <div class="pain-icon">📉</div>
+      <h4>Pierzi lead-uri din cauza timpului de răspuns</h4>
+      <p>Clienții potențiali nu primesc răspuns rapid și pleacă la concurență. Un bot AI răspunde în secunde, 24/7.</p>
+    </div>
+    <div class="pain-card reveal" onclick="openModal()">
+      <div class="pain-icon">😤</div>
+      <h4>Content-ul ia prea mult timp</h4>
+      <p>Crearea de scripturi, video-uri, postări sociale — procese care consumă zile întregi, acum automatizate cu AI.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section" id="servicii">
+  <div class="section-header reveal">
+    <div class="section-tag">Ce oferim</div>
+    <h2>Toate automatizările<br><span class="gradient-text">de care ai nevoie</span></h2>
+    <p>De la boți AI pentru vânzări, până la automatizarea completă a content-ului — avem soluția potrivită pentru tine.</p>
+  </div>
+  <div class="services-tabs">
+    <button class="tab-btn active" onclick="filterServices('all',this)">Toate</button>
+    <button class="tab-btn" onclick="filterServices('bot',this)">AI Bots</button>
+    <button class="tab-btn" onclick="filterServices('sales',this)">Sales & Funnel</button>
+    <button class="tab-btn" onclick="filterServices('content',this)">Content & Brand</button>
+    <button class="tab-btn" onclick="filterServices('tools',this)">Tool-uri AI</button>
+  </div>
+  <div class="services-grid" id="servicesGrid">
+    <div class="service-card" data-cat="bot" onclick="openModalWith('Bot AI pentru Agenți Imobiliari')">
+      <div class="service-icon">🏠</div>
+      <h4>Bot AI pentru Agenți Imobiliari</h4>
+      <p>Bot inteligent care califică lead-urile, răspunde la întrebări despre proprietăți și programează vizionări automat.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="bot" onclick="openModalWith('BOT AI pentru Analiza CV-urilor')">
+      <div class="service-icon">📋</div>
+      <h4>BOT AI pentru Analiza CV-urilor</h4>
+      <p>Scanează și evaluează CV-uri automat, clasifică candidații după criterii personalizate și trimite răspunsuri automate.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="bot" onclick="openModalWith('Agent AI Scraping Google Maps')">
+      <div class="service-icon">🗺️</div>
+      <h4>Agent AI Scraping Google Maps</h4>
+      <p>Extrage automat date de contact din Google Maps — potențiali clienți, parteneri sau concurenți dintr-un anumit domeniu.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="bot" onclick="openModalWith('Agent AI Programare prin Voce')">
+      <div class="service-icon">🎙️</div>
+      <h4>Agent AI Programare prin Voce</h4>
+      <p>Sistemul programează automat întâlniri prin voce, integrat cu calendarul tău. Fără secretară, 24/7 disponibil.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="bot" onclick="openModalWith('Agent Vocal Premium')">
+      <div class="service-icon">🤖</div>
+      <h4>Agent Vocal Premium</h4>
+      <p>Un agent vocal complet, personalizat cu vocea și personalitatea brandului tău — răspunde, vinde, asistă clienții.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card cyan" data-cat="bot" onclick="openModalWith('Chatbots cu AI')">
+      <div class="service-icon">💬</div>
+      <h4>Chatbots cu AI</h4>
+      <p>Chatbot-uri inteligente integrate pe site sau pe WhatsApp care convertesc vizitatorii în clienți non-stop.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="bot" onclick="openModalWith('Calendar Reminders Bot')">
+      <div class="service-icon">📅</div>
+      <h4>Calendar Reminders Bot</h4>
+      <p>Trimite automat reminder-uri personalizate clienților tăi pentru programări, plăți sau evenimente importante.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="bot" onclick="openModalWith('Outreach Automat Google Maps')">
+      <div class="service-icon">📤</div>
+      <h4>Outreach Automat Google Maps</h4>
+      <p>Contactează automat potențiali clienți extrași din Google Maps — email, WhatsApp sau DM personalizat cu AI.</p>
+      <span class="service-tag">AI Bot</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card cyan" data-cat="sales" onclick="openModalWith('BOT Reclame Automatizate')">
+      <div class="service-icon">📣</div>
+      <h4>BOT Reclame Automatizate</h4>
+      <p>Creează și optimizează automat reclamele tale — copywriting, testare A/B, segmentare audiențe, totul cu AI.</p>
+      <span class="service-tag">Sales AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card cyan" data-cat="sales" onclick="openModalWith('Automatizare Funnel de Vânzări cu AI')">
+      <div class="service-icon">🎯</div>
+      <h4>Automatizare Funnel de Vânzări cu AI</h4>
+      <p>Construiești un funnel complet automatizat: captare lead, nurturing, urmărire și închidere vânzare — fără intervenție manuală.</p>
+      <span class="service-tag">Sales AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card cyan" data-cat="sales" onclick="openModalWith('Vânzări Automatizate')">
+      <div class="service-icon">💰</div>
+      <h4>Vânzări Automatizate</h4>
+      <p>Sistem complet de vânzare automată: oferte personalizate, follow-up, contracte și facturare generate de AI.</p>
+      <span class="service-tag">Sales AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card cyan" data-cat="sales" onclick="openModalWith('Generare de Lead-uri cu AI')">
+      <div class="service-icon">🧲</div>
+      <h4>Generare de Lead-uri cu AI</h4>
+      <p>Identifică și atrage automat prospecți calificați pentru businessul tău, folosind AI pentru targetare precisă.</p>
+      <span class="service-tag">Sales AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card green" data-cat="content" onclick="openModalWith('Automatizare Editare Video')">
+      <div class="service-icon">🎬</div>
+      <h4>Automatizare Editare Video</h4>
+      <p>Video-urile tale sunt editate automat cu AI — subtitluri, tranziții, efecte, resize pentru fiecare platformă.</p>
+      <span class="service-tag">Content AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card green" data-cat="content" onclick="openModalWith('Automatizare Content cu AI')">
+      <div class="service-icon">✍️</div>
+      <h4>Automatizare Content cu AI</h4>
+      <p>Generează automat postări, articole, newsletter-uri și scripturi — toate în tonul brandului tău.</p>
+      <span class="service-tag">Content AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card green" data-cat="content" onclick="openModalWith('Bot de Video-uri Virale')">
+      <div class="service-icon">👶</div>
+      <h4>Bot de Video-uri Virale</h4>
+      <p>Creează automat video-uri virale tematice, optimizate pentru TikTok și Instagram Reels.</p>
+      <span class="service-tag">Content AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card green" data-cat="content" onclick="openModalWith('Content Planner Bot')">
+      <div class="service-icon">📆</div>
+      <h4>Content Planner Bot</h4>
+      <p>Planifică și programează automat întregul calendar editorial — zilnic, săptămânal, lunar, fără efort.</p>
+      <span class="service-tag">Content AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card green" data-cat="content" onclick="openModalWith('Agent AI pentru Audit Instagram Reels')">
+      <div class="service-icon">📱</div>
+      <h4>Agent AI pentru Audit Instagram Reels</h4>
+      <p>Analizează performanța Reels-urilor tale și oferă recomandări AI pentru creșterea reach-ului organic.</p>
+      <span class="service-tag">Content AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="tools" onclick="openModalWith('BOT Scripturi Automatizate de Marketing')">
+      <div class="service-icon">📝</div>
+      <h4>BOT Scripturi Automatizate de Marketing</h4>
+      <p>Generează scripturi de vânzare, email-uri, mesaje cold outreach — personalizate și gata de folosit instant.</p>
+      <span class="service-tag">Tool AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="tools" onclick="openModalWith('600+ Tool-uri Utile cu AI')">
+      <div class="service-icon">🔧</div>
+      <h4>600+ Tool-uri Utile cu AI</h4>
+      <p>Acces la o colecție vastă de tool-uri AI specializate pentru fiecare nevoie a businessului tău.</p>
+      <span class="service-tag">Tool AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+    <div class="service-card" data-cat="tools" onclick="openModalWith('30 de Roboți Antrenați pe ChatGPT')">
+      <div class="service-icon">🤖</div>
+      <h4>30 de Roboți Antrenați pe ChatGPT</h4>
+      <p>Roboți pre-antrenați pentru diverse domenii: suport clienți, vânzări, HR, marketing și multe altele.</p>
+      <span class="service-tag">Tool AI</span>
+      <div class="service-cta">Vreau acest serviciu →</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process-section" id="proces">
+  <div class="section-header reveal">
+    <div class="section-tag">Cum funcționează</div>
+    <h2>De la consultație<br>la automatizare în <span class="gradient-text">4 pași</span></h2>
+  </div>
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Consultație Gratuită</h4>
+        <p>Discutăm despre businessul tău, provocările actuale și identificăm împreună care procese pot fi automatizate imediat cu impact maxim.</p>
+      </div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Strategie Personalizată</h4>
+        <p>Îți prezentăm un plan clar cu automatizările recomandate, timpii de implementare și ROI-ul estimat pentru businessul tău specific.</p>
+      </div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Implementare Rapidă</h4>
+        <p>Configurăm și integrăm soluțiile AI în fluxurile tale existente. Fără downtime, fără complicații tehnice — noi ne ocupăm de tot.</p>
+      </div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Suport & Optimizare Continuă</h4>
+        <p>Monitorizăm performanța, facem ajustări și îmbunătățim constant automatizările pentru rezultate tot mai bune în timp.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-header reveal">
+    <div class="section-tag">Testimoniale</div>
+    <h2>Ce spun<br><span class="gradient-text">clienții noștri</span></h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Botul pentru CV-uri mi-a salvat literalmente 3 zile pe lună. Acum primesc o listă scurtă de candidați calificați și mă ocup doar de interviuri. Investiție extraordinară."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">AM</div>
+        <div><div class="author-name">Andrei M.</div><div class="author-role">Director HR, companie 80+ angajați</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Am implementat agentul vocal și acum programările se fac singure. Nicio oră pierdută la telefon, clienții sunt mulțumiți că pot programa 24/7. Rezultate vizibile din prima săptămână."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">CR</div>
+        <div><div class="author-name">Cristina R.</div><div class="author-role">Proprietar clinică medicală</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Funnelul de vânzări automatizat mi-a crescut rata de conversie cu 40% în 2 luni. Lead-urile sunt urmărite automat și eu mă ocup doar de clienții calificați. Pur și simplu genial."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">BT</div>
+        <div><div class="author-name">Bogdan T.</div><div class="author-role">Fondator agenție imobiliară</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="preturi">
+  <div class="section-header reveal">
+    <div class="section-tag">Prețuri</div>
+    <h2>Pachete clare,<br><span class="gradient-text">fără surprize</span></h2>
+    <p>Alege pachetul potrivit sau personalizează-l. Toate includ suport dedicat și implementare asistată.</p>
+  </div>
+
+  <div class="pricing-toggle">
+    <span class="toggle-label active" id="lbl-lunar">Lunar</span>
+    <div class="toggle-switch" id="billingToggle" onclick="toggleBilling()"></div>
+    <span class="toggle-label" id="lbl-anual">Anual</span>
+    <span class="save-badge">Economisești 20%</span>
+  </div>
+
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="plan-name">🌱 Starter</div>
+      <div class="plan-price">
+        <span class="price-currency">€</span>
+        <span class="price-amount" id="price-starter">297</span>
+        <span class="price-period">/ lună</span>
+      </div>
+      <div class="plan-desc">Perfect pentru antreprenorii la început care vor să testeze puterea automatizărilor AI fără investiție mare.</div>
+      <ul class="plan-features">
+        <li>1 automatizare la alegere</li>
+        <li>Implementare asistată complet</li>
+        <li>Suport email 5 zile/săptămână</li>
+        <li>Documentație completă</li>
+        <li>1 sesiune de onboarding (60 min)</li>
+        <li class="no">Integrări avansate</li>
+        <li class="no">Agent vocal personalizat</li>
+        <li class="no">Optimizare lunară</li>
+      </ul>
+      <button onclick="openModalWith('Pachet Starter')" class="plan-btn">Începe cu Starter →</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="featured-badge">⚡ Cel mai popular</div>
+      <div class="plan-name">🚀 Growth</div>
+      <div class="plan-price">
+        <span class="price-currency">€</span>
+        <span class="price-amount" id="price-growth">697</span>
+        <span class="price-period">/ lună</span>
+      </div>
+      <div class="plan-desc">Soluția completă pentru businessuri în creștere care vor să automatizeze procesele cheie și să scaleze rapid.</div>
+      <ul class="plan-features">
+        <li>3 automatizări la alegere</li>
+        <li>1 Bot AI personalizat</li>
+        <li>Funnel de vânzări automatizat</li>
+        <li>Integrare cu CRM / WhatsApp</li>
+        <li>Suport prioritar 7 zile/săptămână</li>
+        <li>Raport lunar de performanță</li>
+        <li>2 sesiuni de optimizare / lună</li>
+        <li class="no">Agent vocal premium</li>
+      </ul>
+      <button onclick="openModalWith('Pachet Growth')" class="plan-btn featured-btn">Alege Growth →</button>
+    </div>
+
+    <div class="pricing-card">
+      <div class="plan-name">👑 Enterprise</div>
+      <div class="plan-price">
+        <span class="price-currency">€</span>
+        <span class="price-amount" id="price-enterprise">1497</span>
+        <span class="price-period">/ lună</span>
+      </div>
+      <div class="plan-desc">Automatizare completă pentru companii cu procese complexe care vor un partener dedicat pe termen lung.</div>
+      <ul class="plan-features">
+        <li>Automatizări nelimitate</li>
+        <li>Agent vocal premium personalizat</li>
+        <li>Funnel complet + CRM integrat</li>
+        <li>Integrări custom nelimitate</li>
+        <li>Account manager dedicat</li>
+        <li>Sesiuni de strategie săptămânale</li>
+        <li>SLA garantat 99.9% uptime</li>
+        <li>Dashboard de analytics custom</li>
+      </ul>
+      <button onclick="openModalWith('Pachet Enterprise')" class="plan-btn">Alege Enterprise →</button>
+    </div>
+  </div>
+</section>
+
+<!-- INDIVIDUAL SERVICES -->
+<section class="individual-section" id="servicii-individuale">
+  <div class="section-header reveal">
+    <div class="section-tag">À la carte</div>
+    <h2>Sau alege<br><span class="gradient-text">servicii individuale</span></h2>
+    <p>Nu ai nevoie de un pachet complet? Alege exact ce ți se potrivește.</p>
+  </div>
+  <div class="individual-grid reveal">
+    <div class="individual-card" onclick="openModalWith('Bot AI Imobiliar')">
+      <div class="individual-left"><div class="ind-icon">🏠</div><div><div class="ind-name">Bot AI Imobiliar</div><div class="ind-cat">AI Bot</div></div></div>
+      <div class="ind-price">€197</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Analiză CV-uri Automat')">
+      <div class="individual-left"><div class="ind-icon">📋</div><div><div class="ind-name">Analiză CV-uri Automat</div><div class="ind-cat">AI Bot</div></div></div>
+      <div class="ind-price">€147</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Scraping Google Maps')">
+      <div class="individual-left"><div class="ind-icon">🗺️</div><div><div class="ind-name">Scraping Google Maps</div><div class="ind-cat">AI Bot</div></div></div>
+      <div class="ind-price">€97</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Agent Vocal AI')">
+      <div class="individual-left"><div class="ind-icon">🎙️</div><div><div class="ind-name">Agent Vocal AI</div><div class="ind-cat">AI Bot</div></div></div>
+      <div class="ind-price">€297</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Chatbot cu AI')">
+      <div class="individual-left"><div class="ind-icon">💬</div><div><div class="ind-name">Chatbot cu AI</div><div class="ind-cat">AI Bot</div></div></div>
+      <div class="ind-price">€197</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Outreach Automat Maps')">
+      <div class="individual-left"><div class="ind-icon">📤</div><div><div class="ind-name">Outreach Automat Maps</div><div class="ind-cat">Sales AI</div></div></div>
+      <div class="ind-price">€147</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Funnel de Vânzări AI')">
+      <div class="individual-left"><div class="ind-icon">🎯</div><div><div class="ind-name">Funnel de Vânzări AI</div><div class="ind-cat">Sales AI</div></div></div>
+      <div class="ind-price">€247</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Generare Lead-uri AI')">
+      <div class="individual-left"><div class="ind-icon">🧲</div><div><div class="ind-name">Generare Lead-uri AI</div><div class="ind-cat">Sales AI</div></div></div>
+      <div class="ind-price">€197</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Editare Video AI')">
+      <div class="individual-left"><div class="ind-icon">🎬</div><div><div class="ind-name">Editare Video AI</div><div class="ind-cat">Content AI</div></div></div>
+      <div class="ind-price">€97</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Automatizare Content')">
+      <div class="individual-left"><div class="ind-icon">✍️</div><div><div class="ind-name">Automatizare Content</div><div class="ind-cat">Content AI</div></div></div>
+      <div class="ind-price">€147</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('Content Planner Bot')">
+      <div class="individual-left"><div class="ind-icon">📆</div><div><div class="ind-name">Content Planner Bot</div><div class="ind-cat">Content AI</div></div></div>
+      <div class="ind-price">€97</div>
+    </div>
+    <div class="individual-card" onclick="openModalWith('600+ Tool-uri AI')">
+      <div class="individual-left"><div class="ind-icon">🔧</div><div><div class="ind-name">600+ Tool-uri AI</div><div class="ind-cat">Tool AI</div></div></div>
+      <div class="ind-price">€49</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="section-header reveal">
+    <div class="section-tag">FAQ</div>
+    <h2>Întrebări<br><span class="gradient-text">frecvente</span></h2>
+  </div>
+  <div class="faq-list reveal">
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">Cât durează implementarea unei automatizări?<span class="faq-arrow">+</span></div>
+      <div class="faq-answer">Majoritatea automatizărilor sunt gata în 24-48 de ore. Soluțiile mai complexe (agent vocal premium, funnel complet) pot dura 3-5 zile lucrătoare. Îți comunicăm exact timeframe-ul înainte de a începe.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">Am nevoie de cunoștințe tehnice pentru a folosi automatizările?<span class="faq-arrow">+</span></div>
+      <div class="faq-answer">Absolut deloc. Noi ne ocupăm de tot — configurare, integrare, testare. Tu primești soluția gata funcțională și o sesiune de training prin care înveți să o monitorizezi simplu din dashboard.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">Se pot integra automatizările cu sistemele mele existente?<span class="faq-arrow">+</span></div>
+      <div class="faq-answer">Da! Integrăm cu cele mai populare platforme: WhatsApp, Gmail, Google Calendar, Notion, HubSpot, Salesforce, WordPress, Shopify și multe altele. Dacă ai un sistem specific, discutăm în consultație.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">Ce se întâmplă dacă automatizarea nu funcționează corect?<span class="faq-arrow">+</span></div>
+      <div class="faq-answer">Oferim suport complet post-implementare. Dacă apare orice problemă, o rezolvăm rapid — includem o perioadă de garanție de 30 de zile în care intervenim gratuit pentru orice ajustare necesară.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">Pot să schimb sau să anulez pachetul oricând?<span class="faq-arrow">+</span></div>
+      <div class="faq-answer">Pachetele lunare pot fi anulate sau modificate cu 15 zile preaviz. Nu există contracte pe termen lung sau penalități. Credem în relații bazate pe rezultate, nu pe blocaje contractuale.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">Pot alege servicii individuale în loc de pachete?<span class="faq-arrow">+</span></div>
+      <div class="faq-answer">Absolut! Dacă ai nevoie de o singură automatizare specifică, o poți achiziționa individual. Prețurile individuale le găsești în secțiunea de mai sus sau ne contactezi pentru o ofertă personalizată.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-bg"></div>
+  <div class="cta-content reveal">
+    <div class="section-tag">Hai să începem</div>
+    <h2>Gata să <span class="gradient-text">automatizezi</span> și tu?</h2>
+    <p>Rezervă o consultație gratuită de 30 de minute. Îți analizăm businessul și îți spunem exact ce automatizări îți pot salva timp și bani — fără nicio obligație.</p>
+    <div class="cta-btns">
+      <button onclick="openModal()" class="btn-primary">📩 Contactează-ne acum →</button>
+      <a href="https://wa.me/40712345678?text=Buna%20ziua!%20Vreau%20o%20consultatie%20gratuita." target="_blank" class="btn-whatsapp">💬 WhatsApp</a>
+    </div>
+    <p style="margin-top:1.5rem;font-size:0.85rem;color:var(--muted);">✅ Fără obligații &nbsp;·&nbsp; ✅ Răspuns în max 24h &nbsp;·&nbsp; ✅ Consultație 100% gratuită</p>
+  </div>
+</section>
+
+<!-- CONTACT INFO -->
+<section class="contact-info-section">
+  <div class="section-header reveal">
+    <div class="section-tag">Contact Direct</div>
+    <h2>Suntem <span class="gradient-text">aici pentru tine</span></h2>
+  </div>
+  <div class="contact-info-grid reveal">
+    <a href="tel:+40712345678" class="contact-info-card">
+      <div class="ci-icon">📞</div>
+      <div class="ci-label">Telefon</div>
+      <div class="ci-value">+40 712 345 678</div>
+    </a>
+    <a href="mailto:contact@automateai.ro" class="contact-info-card">
+      <div class="ci-icon">✉️</div>
+      <div class="ci-label">Email</div>
+      <div class="ci-value">contact@automateai.ro</div>
+    </a>
+    <a href="https://wa.me/40712345678" target="_blank" class="contact-info-card">
+      <div class="ci-icon">💬</div>
+      <div class="ci-label">WhatsApp</div>
+      <div class="ci-value">Scrie-ne direct</div>
+    </a>
+    <a href="https://calendly.com/automateai" target="_blank" class="contact-info-card">
+      <div class="ci-icon">📅</div>
+      <div class="ci-label">Programează</div>
+      <div class="ci-value">Consultație gratuită</div>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">Automate<span>AI</span></div>
+      <p>Automatizări AI pentru businessuri ambițioase. Îți eliberăm timpul ca să te poți concentra pe ce contează cu adevărat — creșterea.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Servicii</h5>
+      <a onclick="goTo('servicii')">AI Bots</a>
+      <a onclick="goTo('servicii')">Sales & Funnel</a>
+      <a onclick="goTo('servicii')">Content AI</a>
+      <a onclick="goTo('servicii')">Tool-uri AI</a>
+    </div>
+    <div class="footer-col">
+      <h5>Companie</h5>
+      <a onclick="openModal()">Despre noi</a>
+      <a onclick="openModal()">Blog</a>
+      <a onclick="openModal()">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Legal</h5>
+      <a onclick="showLegal('termeni')">Termeni & Condiții</a>
+      <a onclick="showLegal('confidentialitate')">Politică Confidențialitate</a>
+      <a onclick="showLegal('gdpr')">GDPR</a>
+      <a onclick="showLegal('cookie')">Cookie Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 AutomateAI. Toate drepturile rezervate.</span>
+    <div class="social-links">
+      <a href="https://facebook.com/automateai" target="_blank" title="Facebook">f</a>
+      <a href="https://instagram.com/automateai" target="_blank" title="Instagram">ig</a>
+      <a href="https://linkedin.com/company/automateai" target="_blank" title="LinkedIn">in</a>
+      <a href="https://tiktok.com/@automateai" target="_blank" title="TikTok">tt</a>
+    </div>
+  </div>
+</footer>
+
+<!-- CONTACT MODAL -->
+<div id="contactModal" class="modal-overlay" onclick="handleOverlayClick(event,'contactModal')">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-tag">Consultatie Gratuita</div>
+      <button class="modal-close-btn" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <h3 style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:0.5rem;line-height:1.2;">Hai să discutăm despre businessul tău</h3>
+    <p style="color:#94a3b8;font-size:0.88rem;margin-bottom:1.8rem;line-height:1.6;">Completează formularul și te contactăm în maxim 24h cu o strategie personalizată.</p>
+    <div class="modal-form">
+      <input id="m-name" class="modal-input" type="text" placeholder="Numele tău *">
+      <input id="m-email" class="modal-input" type="email" placeholder="Email *">
+      <input id="m-phone" class="modal-input" type="tel" placeholder="Telefon / WhatsApp">
+      <select id="m-service" class="modal-select">
+        <option value="" disabled selected>Ce te interesează?</option>
+        <option>Pachet Starter (297 EUR/lună)</option>
+        <option>Pachet Growth (697 EUR/lună)</option>
+        <option>Pachet Enterprise (1497 EUR/lună)</option>
+        <option>Serviciu individual</option>
+        <option>Vreau doar o consultație</option>
+      </select>
+      <textarea id="m-msg" class="modal-input" placeholder="Spune-ne pe scurt despre businessul tău..." rows="3" style="resize:vertical;min-height:80px;"></textarea>
+      <button id="m-btn" class="modal-submit" onclick="submitModal()">Trimite cererea &rarr;</button>
+    </div>
+    <p style="text-align:center;color:#94a3b8;font-size:0.78rem;margin-top:1rem;">Fără obligații &nbsp;|&nbsp; Răspuns în 24h &nbsp;|&nbsp; 100% gratuit</p>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" onclick="handleOverlayClick(event,'successModal')">
+  <div style="background:#0d1220;border:1px solid rgba(16,185,129,0.4);border-radius:24px;padding:3rem 2.5rem;max-width:400px;width:100%;text-align:center;box-shadow:0 0 80px rgba(16,185,129,0.15);margin:auto;">
+    <div style="font-size:3.5rem;margin-bottom:1rem;">🎉</div>
+    <h3 style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:0.8rem;">Cerere trimisă!</h3>
+    <p style="color:#94a3b8;font-size:0.9rem;line-height:1.7;margin-bottom:2rem;">Mulțumim! Te contactăm în maxim <strong style="color:#f1f5f9;">24 de ore</strong>.</p>
+    <button onclick="closeSuccess()" style="background:linear-gradient(135deg,#10b981,#06b6d4);border:none;color:white;padding:0.85rem 2rem;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;">Super, aștept!</button>
+  </div>
+</div>
+
+<!-- LEGAL MODAL -->
+<div id="legalModal" class="modal-overlay" onclick="handleOverlayClick(event,'legalModal')">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-top">
+      <div class="modal-tag" id="legalTitle">Document Legal</div>
+      <button class="modal-close-btn" onclick="closeLegal()">&#x2715;</button>
+    </div>
+    <div id="legalContent" style="color:var(--muted);font-size:0.9rem;line-height:1.8;max-height:60vh;overflow-y:auto;padding-right:0.5rem;"></div>
+  </div>
+</div>
+
+<script>
+// =====================
+// CONTACTE — editează cu datele tale reale
+// =====================
+const OWNER = {
+  phone:    '+40712345678',
+  whatsapp: '40712345678',
+  email:    'contact@automateai.ro',
+  facebook: 'https://facebook.com/automateai',
+  instagram:'https://instagram.com/automateai',
+  linkedin: 'https://linkedin.com/company/automateai',
+  tiktok:   'https://tiktok.com/@automateai',
+  calendly: 'https://calendly.com/automateai'
+};
+
+// Update links dynamically
+document.querySelector('#whatsappFloat').href = `https://wa.me/${OWNER.whatsapp}?text=Buna%20ziua!%20Vreau%20o%20consultatie%20gratuita%20despre%20automatizari%20AI.`;
+document.querySelectorAll('a[href*="wa.me"]').forEach(a => a.href = `https://wa.me/${OWNER.whatsapp}?text=Buna%20ziua!%20Vreau%20o%20consultatie%20gratuita.`);
+document.querySelectorAll('a[href^="tel:"]').forEach(a => a.href = `tel:${OWNER.phone}`);
+document.querySelectorAll('a[href^="mailto:"]').forEach(a => a.href = `mailto:${OWNER.email}`);
+
+// =====================
+// NAVIGATION
+// =====================
+function goTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// =====================
+// MOBILE MENU
+// =====================
+function toggleMenu() {
+  var menu = document.getElementById('mobileMenu');
+  var ham = document.getElementById('hamburger');
+  menu.classList.toggle('open');
+  ham.classList.toggle('open');
+  document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// =====================
+// SCROLL EFFECTS
+// =====================
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.1});
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+window.addEventListener('scroll', function() {
+  var nav = document.getElementById('mainNav');
+  nav.style.background = window.scrollY > 50 ? 'rgba(8,11,18,0.98)' : 'rgba(8,11,18,0.85)';
+  var btn = document.getElementById('backToTop');
+  btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+// =====================
+// FAQ
+// =====================
+function toggleFaq(el) {
+  var item = el.parentElement;
+  var isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
+  if (!isOpen) item.classList.add('open');
+}
+
+// =====================
+// SERVICES FILTER
+// =====================
+function filterServices(cat, btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.service-card').forEach(function(card) {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.style.display = '';
+      card.style.animation = 'fadeUp 0.4s ease forwards';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// =====================
+// BILLING TOGGLE
+// =====================
+var isAnnual = false;
+var prices = {starter:297, growth:697, enterprise:1497};
+function toggleBilling() {
+  isAnnual = !isAnnual;
+  var tog = document.getElementById('billingToggle');
+  tog.classList.toggle('annual', isAnnual);
+  document.getElementById('lbl-lunar').classList.toggle('active', !isAnnual);
+  document.getElementById('lbl-anual').classList.toggle('active', isAnnual);
+  var mult = isAnnual ? 0.8 : 1;
+  document.getElementById('price-starter').textContent = Math.round(prices.starter * mult);
+  document.getElementById('price-growth').textContent = Math.round(prices.growth * mult);
+  document.getElementById('price-enterprise').textContent = Math.round(prices.enterprise * mult);
+}
+
+// =====================
+// COUNTERS
+// =====================
+function animateCounters() {
+  document.querySelectorAll('.stat-num').forEach(function(el) {
+    var text = el.textContent;
+    var num = parseFloat(text);
+    var suffix = text.replace(/[\d.]/g, '');
+    if (!isNaN(num)) {
+      var start = 0;
+      var step = num / 40;
+      var timer = setInterval(function() {
+        start += step;
+        if (start >= num) {
+          el.textContent = (num % 1 === 0 ? Math.round(num) : num) + suffix;
+          clearInterval(timer);
+        } else {
+          el.textContent = (num % 1 === 0 ? Math.round(start) : start.toFixed(1)) + suffix;
+        }
+      }, 30);
+    }
+  });
+}
+var heroObs = new IntersectionObserver(function(entries) {
+  if (entries[0].isIntersecting) { setTimeout(animateCounters, 500); heroObs.disconnect(); }
+});
+var heroStats = document.querySelector('.hero-stats');
+if (heroStats) heroObs.observe(heroStats);
+
+// =====================
+// MODAL
+// =====================
+function openModal() {
+  document.getElementById('contactModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('contactModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function openModalWith(serviceName) {
+  openModal();
+  setTimeout(function() {
+    var sel = document.getElementById('m-service');
+    var found = false;
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].text.toLowerCase().includes(serviceName.toLowerCase())) {
+        sel.selectedIndex = i; found = true; break;
+      }
+    }
+    if (!found) {
+      for (var j = 0; j < sel.options.length; j++) {
+        if (sel.options[j].text.includes('individual')) { sel.selectedIndex = j; break; }
+      }
+    }
+    document.getElementById('m-msg').value = 'Sunt interesat de: ' + serviceName;
+  }, 50);
+}
+function handleOverlayClick(e, id) {
+  if (e.target === document.getElementById(id)) {
+    if (id === 'contactModal') closeModal();
+    else if (id === 'successModal') closeSuccess();
+    else if (id === 'legalModal') closeLegal();
+  }
+}
+function closeSuccess() {
+  document.getElementById('successModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); closeSuccess(); closeLegal(); closeMobileMenu(); }
+});
+
+function submitModal() {
+  var name = document.getElementById('m-name').value.trim();
+  var email = document.getElementById('m-email').value.trim();
+  var phone = document.getElementById('m-phone').value.trim();
+  var service = document.getElementById('m-service').value;
+  var msg = document.getElementById('m-msg').value.trim();
+
+  document.getElementById('m-name').style.borderColor = name ? 'rgba(124,58,237,0.3)' : '#ef4444';
+  document.getElementById('m-email').style.borderColor = email ? 'rgba(124,58,237,0.3)' : '#ef4444';
+  if (!name || !email) return;
+
+  // Email via mailto (se poate înlocui cu un backend real)
+  var subject = encodeURIComponent('Cerere AutomateAI: ' + (service || 'Contact'));
+  var body = encodeURIComponent(
+    'Nume: ' + name + '\n' +
+    'Email: ' + email + '\n' +
+    'Telefon: ' + (phone || '-') + '\n' +
+    'Serviciu: ' + (service || '-') + '\n\n' +
+    'Mesaj:\n' + (msg || '-')
+  );
+
+  var btn = document.getElementById('m-btn');
+  btn.textContent = 'Se trimite...'; btn.style.opacity = '0.7';
+
+  // Deschide mailto + afișează succes
+  setTimeout(function() {
+    window.location.href = 'mailto:' + OWNER.email + '?subject=' + subject + '&body=' + body;
+    closeModal();
+    var sm = document.getElementById('successModal');
+    sm.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // Reset form
+    ['m-name','m-email','m-phone','m-msg'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('m-service').selectedIndex = 0;
+    btn.textContent = 'Trimite cererea →'; btn.style.opacity = '1';
+  }, 800);
+}
+
+// =====================
+// LEGAL MODALS
+// =====================
+var legalTexts = {
+  termeni: {
+    title: 'Termeni & Condiții',
+    content: `<h4 style="color:var(--text);margin-bottom:1rem;">Termeni și Condiții de Utilizare</h4>
+    <p><strong style="color:var(--text);">1. Acceptarea termenilor</strong><br>Prin accesarea sau utilizarea serviciilor AutomateAI, ești de acord cu acești termeni și condiții.</p><br>
+    <p><strong style="color:var(--text);">2. Serviciile oferite</strong><br>AutomateAI oferă servicii de automatizare bazate pe inteligență artificială pentru businessuri. Serviciile sunt descrise detaliat pe site și pot fi modificate fără notificare prealabilă.</p><br>
+    <p><strong style="color:var(--text);">3. Plăți și facturare</strong><br>Pachetele lunare sunt facturate în avans. Prețurile sunt exprimate în EUR și pot fi modificate cu notificare de 30 de zile.</p><br>
+    <p><strong style="color:var(--text);">4. Anulare</strong><br>Poți anula oricând cu 15 zile preaviz. Nu se aplică penalități pentru anulare.</p><br>
+    <p><strong style="color:var(--text);">5. Proprietate intelectuală</strong><br>Toate materialele și soluțiile create pentru client rămân proprietatea clientului după achitarea integrală.</p><br>
+    <p><strong style="color:var(--text);">6. Limitarea răspunderii</strong><br>AutomateAI nu este responsabil pentru pierderi indirecte sau consecvențiale rezultate din utilizarea serviciilor.</p>`
+  },
+  confidentialitate: {
+    title: 'Politică de Confidențialitate',
+    content: `<h4 style="color:var(--text);margin-bottom:1rem;">Politica de Confidențialitate</h4>
+    <p><strong style="color:var(--text);">1. Date colectate</strong><br>Colectăm: nume, email, număr de telefon, informații despre business și mesaje trimise prin formularul de contact.</p><br>
+    <p><strong style="color:var(--text);">2. Utilizarea datelor</strong><br>Datele tale sunt folosite exclusiv pentru: furnizarea serviciilor contractate, comunicare despre proiecte active, îmbunătățirea serviciilor noastre.</p><br>
+    <p><strong style="color:var(--text);">3. Stocarea datelor</strong><br>Datele sunt stocate pe servere securizate din UE. Nu vindem și nu împărtășim datele tale cu terți fără consimțământul tău.</p><br>
+    <p><strong style="color:var(--text);">4. Drepturile tale</strong><br>Ai dreptul la: acces la datele tale, rectificare, ștergere, portabilitate și opoziție la prelucrare. Contactează-ne la ${OWNER.email}.</p><br>
+    <p><strong style="color:var(--text);">5. Contact</strong><br>Pentru orice întrebare privind confidențialitatea: ${OWNER.email}</p>`
+  },
+  gdpr: {
+    title: 'GDPR',
+    content: `<h4 style="color:var(--text);margin-bottom:1rem;">Conformitate GDPR</h4>
+    <p>AutomateAI prelucrează datele cu caracter personal în conformitate cu Regulamentul (UE) 2016/679 (GDPR).</p><br>
+    <p><strong style="color:var(--text);">Temeiul legal al prelucrării:</strong><br>• Executarea unui contract (Art. 6(1)(b))<br>• Consimțământul tău explicit (Art. 6(1)(a))<br>• Interesul legitim al companiei (Art. 6(1)(f))</p><br>
+    <p><strong style="color:var(--text);">Perioada de retenție:</strong><br>Datele sunt păstrate pe durata contractului și 3 ani după, conform obligațiilor legale.</p><br>
+    <p><strong style="color:var(--text);">Drepturile tale GDPR:</strong><br>• Drept de acces (Art. 15)<br>• Drept la rectificare (Art. 16)<br>• Drept la ștergere (Art. 17)<br>• Drept la restricționarea prelucrării (Art. 18)<br>• Drept la portabilitatea datelor (Art. 20)<br>• Drept la opoziție (Art. 21)</p><br>
+    <p>Autoritatea de supraveghere: <strong style="color:var(--text);">ANSPDCP</strong> — www.dataprotection.ro</p>`
+  },
+  cookie: {
+    title: 'Cookie Policy',
+    content: `<h4 style="color:var(--text);margin-bottom:1rem;">Politica privind Cookie-urile</h4>
+    <p>Folosim cookie-uri pentru a îmbunătăți experiența ta pe site.</p><br>
+    <p><strong style="color:var(--text);">Cookie-uri esențiale:</strong><br>Necesare pentru funcționarea site-ului. Nu pot fi dezactivate.</p><br>
+    <p><strong style="color:var(--text);">Cookie-uri analitice:</strong><br>Ne ajută să înțelegem cum este folosit site-ul (Google Analytics). Date anonimizate.</p><br>
+    <p><strong style="color:var(--text);">Cookie-uri de marketing:</strong><br>Folosite pentru reclame relevante pe platformele social media.</p><br>
+    <p><strong style="color:var(--text);">Gestionarea cookie-urilor:</strong><br>Poți controla cookie-urile din setările browserului tău. Dezactivarea unor cookie-uri poate afecta funcționalitatea site-ului.</p><br>
+    <p>Pentru mai multe informații: ${OWNER.email}</p>`
+  }
+};
+
+function showLegal(type) {
+  var data = legalTexts[type];
+  if (!data) return;
+  document.getElementById('legalTitle').textContent = data.title;
+  document.getElementById('legalContent').innerHTML = data.content;
+  document.getElementById('legalModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLegal() {
+  document.getElementById('legalModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+</script>
+</body>
+</html>
